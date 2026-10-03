@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XAVI CLOTHES AI</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+  body {
+    min-height: 100vh;
+    background: #0a0a0f;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(139,92,246,0.15), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(236,72,153,0.15), transparent 40%);
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  .container { width: 100%; max-width: 560px; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 24px; }
+  .logo {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 100px;
+    font-size: 12px; color: #a78bfa;
+    margin-bottom: 12px; letter-spacing: 0.5px;
+  }
+  .logo .dot {
+    width: 8px; height: 8px;
+    background: #34d399; border-radius: 50%;
+    box-shadow: 0 0 10px #34d399;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+
+  h1 {
+    font-size: 28px; font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg,#a78bfa 0%,#ec4899 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .subtitle { font-size: 13px; color: #71717a; }
+
+  /* Card */
+  .card {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: #a1a1aa; margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+
+  input[type="text"], input[type="url"] {
+    width: 100%;
+    padding: 13px 16px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: #fff; font-size: 14px;
+    font-family: 'Courier New', monospace;
+    transition: 0.2s;
+  }
+  input[type="text"]:focus, input[type="url"]:focus {
+    outline: none;
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
+    background: rgba(0,0,0,0.6);
+  }
+  input::placeholder { color: #52525b; }
+
+  /* Preview */
+  .preview {
+    display: none; position: relative; margin-top: 12px;
+  }
+  .preview img {
+    width: 100%; max-height: 300px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.4);
+  }
+  .preview .remove-btn {
+    position: absolute; top: 10px; right: 10px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(239,68,68,0.9);
+    border: none; color: #fff; font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+  }
+  .preview .remove-btn:hover { background: #ef4444; transform: scale(1.1); }
+  .preview .status-badge {
+    position: absolute; bottom: 10px; left: 10px;
+    padding: 4px 10px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 6px; font-size: 11px;
+    color: #34d399; backdrop-filter: blur(10px);
+  }
+
+  /* Tombol utama */
+  .btn-main {
+    width: 100%; padding: 15px;
+    border: none; border-radius: 12px;
+    background: linear-gradient(135deg,#8b5cf6,#ec4899);
+    color: #fff; font-size: 15px; font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer; transition: 0.25s;
+    margin-top: 16px;
+  }
+  .btn-main:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(236,72,153,0.35);
+  }
+  .btn-main:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Progress */
+  .progress {
+    display: none; height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px; overflow: hidden;
+    margin-top: 16px;
+  }
+  .progress .bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg,#8b5cf6,#ec4899,#8b5cf6);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+    transition: width 0.4s;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* Log panel */
+  .log-panel {
+    background: #0d0d12;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .log-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .log-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600;
+    color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .log-title .dot-live {
+    width: 6px; height: 6px; background: #34d399;
+    border-radius: 50%; box-shadow: 0 0 8px #34d399;
+    animation: pulse 1.5s infinite;
+  }
+  .log-clear {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #a1a1aa; font-size: 11px;
+    padding: 4px 10px; border-radius: 6px;
+    cursor: pointer; transition: 0.2s;
+  }
+  .log-clear:hover { background: rgba(255,255,255,0.05); color: #fff; }
+  .log-body {
+    padding: 12px 16px; max-height: 260px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 12px; line-height: 1.7;
+  }
+  .log-body::-webkit-scrollbar { width: 6px; }
+  .log-body::-webkit-scrollbar-track { background: transparent; }
+  .log-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+  .log-line {
+    display: flex; gap: 8px; margin-bottom: 2px;
+    animation: fadeIn 0.3s;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .log-time { color: #52525b; flex-shrink: 0; }
+  .log-msg { word-break: break-word; }
+  .log-info .log-msg { color: #a1a1aa; }
+  .log-success .log-msg { color: #34d399; }
+  .log-error .log-msg { color: #f87171; }
+  .log-warn .log-msg { color: #fbbf24; }
+  .log-step .log-msg { color: #a78bfa; font-weight: 600; }
+
+  /* Hasil */
+  .result-card {
+    display: none;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 20px; margin-bottom: 16px;
+    text-align: center;
+  }
+  .result-card h3 {
+    font-size: 13px; color: #34d399;
+    margin-bottom: 14px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .result-card img {
+    width: 100%; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 14px;
+  }
+  .result-meta {
+    display: flex; justify-content: center; gap: 20px;
+    font-size: 11px; color: #71717a; margin-bottom: 14px;
+  }
+  .result-meta b { color: #a78bfa; }
+
+  /* Tombol download */
+  .btn-download {
+    display: inline-flex;
+    align-items: center; justify-content: center; gap: 8px;
+    padding: 13px 28px;
+    background: linear-gradient(135deg,#8b5cf6,#ec4899);
+    color: #fff; text-decoration: none;
+    border-radius: 12px; font-size: 14px;
+    font-weight: 700; transition: 0.25s;
+    border: none; cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    width: 100%;
+  }
+  .btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(236,72,153,0.4);
+  }
+  .btn-download:active { transform: translateY(0); }
+
+  .hint {
+    font-size: 11px; color: #71717a;
+    margin-top: 8px; line-height: 1.6;
+  }
+  .hint code {
+    background: rgba(167,139,250,0.1);
+    padding: 2px 6px; border-radius: 4px;
+    color: #a78bfa; font-size: 10px;
+  }
+
+  /* Toast notifikasi */
+  .toast {
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg,#8b5cf6,#ec4899);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(236,72,153,0.5);
+    opacity: 0;
+    transition: 0.4s;
+    z-index: 9999;
+    display: flex; align-items: center; gap: 8px;
+    max-width: 90%;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  .toast.error {
+    background: linear-gradient(135deg,#ef4444,#f97316);
+    box-shadow: 0 10px 30px rgba(239,68,68,0.5);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <span class="dot"></span>
+        XAVI CLOTHES AI
+      </div>
+      <h1>Remove Clothes AI</h1>
+      <p class="subtitle">Powered by IkyyOfficial API</p>
+    </div>
+
+    <!-- Card Input -->
+    <div class="card">
+      <label>🔑 API Key</label>
+      <input type="text" id="apiKey" placeholder="Masukkan X-App-Key kamu" autocomplete="off">
+
+      <label style="margin-top:20px;">🔗 URL Gambar</label>
+      <input type="url" id="imageUrl" placeholder="https://example.com/foto.jpg">
+
+      <div class="hint">
+        💡 Tips: gunakan direct link gambar (akhiran <code>.jpg</code> / <code>.png</code>).
+        Contoh: <code>i.imgur.com/xxx.jpg</code>, <code>i.ibb.co/xxx/foto.jpg</code>
+      </div>
+
+      <div class="preview" id="preview">
+        <img id="previewImg" src="" alt="Preview">
+        <button class="remove-btn" id="removeBtn">✕</button>
+        <div class="status-badge" id="previewStatus">✓ Gambar valid</div>
+      </div>
+
+      <button class="btn-main" id="submitBtn" disabled>🚀 Proses Sekarang</button>
+
+      <div class="progress" id="progress"><div class="bar" id="progressBar"></div></div>
+    </div>
+
+    <!-- Hasil -->
+    <div class="result-card" id="resultCard">
+      <h3>✅ Hasil</h3>
+      <img id="resultImg" src="" alt="Hasil">
+      <div class="result-meta">
+        <span>⏱️ Runtime: <b id="metaRuntime">-</b></span>
+        <span>💎 Sisa limit: <b id="metaLimit">-</b></span>
+      </div>
+      <button class="btn-download" id="downloadBtn">⬇️ Download Gambar</button>
+    </div>
+
+    <!-- Log Panel -->
+    <div class="log-panel">
+      <div class="log-header">
+        <div class="log-title"><span class="dot-live"></span> Live Log</div>
+        <button class="log-clear" id="clearLog">Clear</button>
+      </div>
+      <div class="log-body" id="logBody"></div>
+    </div>
+
+  </div>
+
+  <!-- Toast notif -->
+  <div class="toast" id="toast">✅ <span id="toastMsg">Berhasil!</span></div>
+
+<script>
+  // ============ ELEMENTS ============
+  const apiKeyEl    = document.getElementById('apiKey');
+  const imageUrlEl  = document.getElementById('imageUrl');
+  const preview     = document.getElementById('preview');
+  const previewImg  = document.getElementById('previewImg');
+  const previewStatus = document.getElementById('previewStatus');
+  const removeBtn   = document.getElementById('removeBtn');
+  const submitBtn   = document.getElementById('submitBtn');
+  const progress    = document.getElementById('progress');
+  const progressBar = document.getElementById('progressBar');
+  const resultCard  = document.getElementById('resultCard');
+  const resultImg   = document.getElementById('resultImg');
+  const metaRuntime = document.getElementById('metaRuntime');
+  const metaLimit   = document.getElementById('metaLimit');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const logBody     = document.getElementById('logBody');
+  const clearLog    = document.getElementById('clearLog');
+  const toast       = document.getElementById('toast');
+  const toastMsg    = document.getElementById('toastMsg');
+
+  let currentUrl = '';
+  let lastResultUrl = '';
+
+  // ============ LOG SYSTEM ============
+  function log(msg, type = 'info') {
+    const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    const line = document.createElement('div');
+    line.className = `log-line log-${type}`;
+    line.innerHTML = `<span class="log-time">[${time}]</span><span class="log-msg">${msg}</span>`;
+    logBody.appendChild(line);
+    logBody.scrollTop = logBody.scrollHeight;
+  }
+
+  clearLog.addEventListener('click', () => {
+    logBody.innerHTML = '';
+    log('Log dibersihkan', 'info');
+  });
+
+  // ============ TOAST ============
+  function showToast(msg, isError = false, duration = 3000) {
+    toastMsg.textContent = msg;
+    toast.classList.toggle('error', isError);
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), duration);
+  }
+
+  // ============ URL HANDLER ============
+  let urlDebounce;
+  imageUrlEl.addEventListener('input', () => {
+    clearTimeout(urlDebounce);
+    urlDebounce = setTimeout(() => {
+      const url = imageUrlEl.value.trim();
+      if (!url) { resetPreview(); return; }
+      if (!isValidUrl(url)) {
+        previewStatus.textContent = '⚠️ Format URL tidak valid';
+        previewStatus.style.color = '#fbbf24';
+        return;
+      }
+      loadPreview(url);
+    }, 600);
+  });
+
+  function isValidUrl(str) {
+    try {
+      const u = new URL(str);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch { return false; }
+  }
+
+  function loadPreview(url) {
+    log('🔍 Memuat preview gambar...', 'info');
+    const testImg = new Image();
+    testImg.crossOrigin = 'anonymous';
+
+    testImg.onload = () => {
+      currentUrl = url;
+      previewImg.src = url;
+      preview.style.display = 'block';
+      previewStatus.textContent = `✓ Gambar valid (${testImg.naturalWidth}×${testImg.naturalHeight})`;
+      previewStatus.style.color = '#34d399';
+      updateSubmitState();
+      log(`✅ Preview OK — ${testImg.naturalWidth}×${testImg.naturalHeight}px`, 'success');
+    };
+
+    testImg.onerror = () => {
+      previewImg.src = url;
+      preview.style.display = 'block';
+      previewStatus.textContent = '❌ Gambar tidak bisa dimuat';
+      previewStatus.style.color = '#f87171';
+      currentUrl = '';
+      updateSubmitState();
+      log('❌ Gambar gagal dimuat (CORS / URL mati)', 'error');
+    };
+
+    testImg.src = url;
+  }
+
+  function resetPreview() {
+    currentUrl = '';
+    previewImg.src = '';
+    preview.style.display = 'none';
+    updateSubmitState();
+  }
+
+  removeBtn.addEventListener('click', () => {
+    imageUrlEl.value = '';
+    resetPreview();
+    log('🗑️ URL dihapus', 'warn');
+  });
+
+  function updateSubmitState() {
+    submitBtn.disabled = !(currentUrl && apiKeyEl.value.trim());
+  }
+  apiKeyEl.addEventListener('input', () => {
+    if (apiKeyEl.value.trim()) log('🔑 API Key dimasukkan', 'info');
+    updateSubmitState();
+  });
+
+  // ============ MANUAL DOWNLOAD ============
+  downloadBtn.addEventListener('click', async () => {
+    if (!lastResultUrl) {
+      showToast('❌ Tidak ada hasil untuk di-download', true);
+      return;
+    }
+
+    log('⬇️ Memulai download manual...', 'step');
+    const t0 = performance.now();
+
+    try {
+      // Coba fetch sebagai blob biar bisa rename file
+      const res = await fetch(lastResultUrl, { mode: 'cors' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const blob = await res.blob();
+      const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const filename = `xavi-result-${timestamp}.${ext}`;
+
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+
+      const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+      log(`✅ Download berhasil dalam ${elapsed}s`, 'success');
+      log(`📁 File: ${filename}`, 'success');
+      log(`💾 Ukuran: ${(blob.size / 1024).toFixed(1)} KB`, 'info');
+      showToast('✅ Gambar berhasil di-download!');
+
+    } catch (err) {
+      log(`⚠️ Fetch gagal: ${err.message}`, 'warn');
+      log('💡 Fallback: buka di tab baru untuk save manual', 'warn');
+
+      // Fallback: buka tab baru (gak kena CORS)
+      const a = document.createElement('a');
+      a.href = lastResultUrl;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.download = 'xavi-result.jpg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      showToast('📂 Gambar dibuka di tab baru — long-press untuk save', false, 4000);
+      log('📂 Gambar dibuka di tab baru', 'info');
+    }
+  });
+
+  // ============ SUBMIT ============
+  submitBtn.addEventListener('click', async () => {
+    const key = apiKeyEl.value.trim();
+    const url = currentUrl;
+    if (!key || !url) return;
+
+    // Reset UI
+    resultCard.style.display = 'none';
+    submitBtn.disabled = true;
+    progress.style.display = 'block';
+    progressBar.style.width = '10%';
+    lastResultUrl = '';
+
+    log('━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+    log('🚀 Memulai proses remove clothes...', 'step');
+    log(`🔗 URL gambar: ${url}`, 'info');
+
+    const globalStart = performance.now();
+
+    try {
+      log('📍 Mengirim request ke API Ikyy...', 'step');
+      log('⏳ Menunggu response (bisa 15-30 detik)...', 'warn');
+      progressBar.style.width = '40%';
+
+      const apiStart = performance.now();
+      const endpoint = `https://api.ikyyxd.my.id/edit/remove-clothesv2?url=${encodeURIComponent(url)}&key=${encodeURIComponent(key)}`;
+
+      log(`📡 GET ${endpoint.slice(0, 90)}...`, 'info');
+
+      const res = await fetch(endpoint);
+      log(`📥 HTTP ${res.status} ${res.statusText}`, res.ok ? 'success' : 'error');
+      progressBar.style.width = '75%';
+
+      const data = await res.json();
+      const apiElapsed = ((performance.now() - apiStart) / 1000).toFixed(2);
+
+      log(`⚡ Response diterima dalam ${apiElapsed}s`, 'success');
+      log(`📦 Status API: ${data.status}`, data.status ? 'success' : 'error');
+
+      progressBar.style.width = '100%';
+
+      if (data.status && data.result) {
+        log(`🎨 Task ID: ${data.result.task_id || '-'}`, 'info');
+        log(`🖼️ Hasil: ${data.result.result_url}`, 'success');
+        log(`⏱️ Runtime server: ${data.runtime}`, 'info');
+        log(`💎 Sisa limit: ${data.remaining_limit}`, 'info');
+
+        // Tampilkan hasil
+        resultImg.src = data.result.result_url;
+        metaRuntime.textContent = data.runtime || '-';
+        metaLimit.textContent = data.remaining_limit ?? '-';
+        lastResultUrl = data.result.result_url;
+        resultCard.style.display = 'block';
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        const totalElapsed = ((performance.now() - globalStart) / 1000).toFixed(2);
+        log(`🎉 SELESAI! Total waktu: ${totalElapsed}s`, 'success');
+        log('💾 Klik tombol "Download Gambar" untuk menyimpan', 'warn');
+
+        showToast('✅ Berhasil! Klik tombol Download untuk simpan gambar', false, 3500);
+
+      } else {
+        const errMsg = data.error || data.message || JSON.stringify(data);
+        log(`❌ Gagal: ${errMsg}`, 'error');
+
+        if (errMsg.includes('403')) {
+          log('💡 Hint: Server Ikyy tidak bisa akses URL gambar (diblokir hosting)', 'warn');
+          log('💡 Coba pakai direct link dari i.imgur.com atau i.ibb.co', 'warn');
+        } else if (errMsg.includes('404')) {
+          log('💡 Hint: URL gambar tidak ditemukan (mungkin sudah expired)', 'warn');
+        } else if (errMsg.includes('limit')) {
+          log('💡 Hint: Limit API key kamu habis. Tunggu reset atau upgrade', 'warn');
+        } else if (errMsg.includes('key')) {
+          log('💡 Hint: API key tidak valid / salah', 'warn');
+        }
+
+        resultCard.style.display = 'none';
+        showToast('❌ Gagal: ' + errMsg.slice(0, 60), true, 4000);
+      }
+
+    } catch (err) {
+      log(`❌ ERROR: ${err.message}`, 'error');
+      showToast('❌ ' + err.message, true, 4000);
+      console.error(err);
+    } finally {
+      submitBtn.disabled = false;
+      setTimeout(() => {
+        progress.style.display = 'none';
+        progressBar.style.width = '0%';
+      }, 1500);
+    }
+  });
+
+  // ============ INIT ============
+  log('✨ XAVI CLOTHES AI siap digunakan', 'success');
+  log('📝 Masukkan API Key dan URL gambar untuk memulai', 'info');
+  log('💾 Hasil akan muncul dengan tombol Download manual', 'warn');
+</script>
+</body>
+</html>
